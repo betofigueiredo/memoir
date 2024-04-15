@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "performance-api"
+version = "1.0.0"
+description = ""
+authors = ["Beto Figueiredo"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12.2"
+alembic = "^1.13.1"
+attrs = "^23.2.0"
+asyncpg = "^0.29.0"
+pydantic = { extras = ["email"], version = "^2.6.4" }
+python-dotenv = "^1.0.1"
+pendulum = "^3.0.0"
+pandas = "^2.2.1"
+fastapi = "^0.110.0"
+sqlalchemy = "^2.0.28"
+uvicorn = { extras = ["standard"], version = "^0.29.0" }
+gunicorn = "^21.2.0"
+
+[tool.poetry.group.dev.dependencies]
+taskipy = "^1.12.2"
+pylint = "^3.1.0"
+ruff = "^0.3.4"
+
+[tool.ruff]
+ignore-init-module-imports = true
+indent-width = 4
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[tool.taskipy.tasks]
+test = { cmd = "python3 -m pytest -vv", help = "runs all unit tests" }
+create_migration = { cmd = "docker compose exec perfapi alembic revision --autogenerate -m", help = "create new migration" }
+run_migrations = { cmd = "docker compose exec perfapi alembic upgrade head", help = "run migrations" }
+undo_last_migration = { cmd = "docker compose exec perfapi alembic downgrade -1", help = "undo last migration" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

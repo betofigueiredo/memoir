@@ -1,0 +1,156 @@
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:1.24.0-alpine
+    hostname: api
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api1
+      - api2
+      - api3
+    ports:
+      - "8080:80"
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "0.25"
+    #       memory: "0.5GB"
+
+  api1:
+    container_name: api1
+    hostname: api1
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - ENV=development
+      - PORT=3001
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=database
+    ports:
+      - "3001:3001"
+    restart: on-failure
+    volumes:
+      - ./api:/api
+    depends_on:
+      - database
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "0.2"
+    #       memory: "0.5GB"
+
+  api2:
+    container_name: api2
+    hostname: api2
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - ENV=development
+      - PORT=3002
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=database
+    ports:
+      - "3002:3002"
+    restart: on-failure
+    volumes:
+      - ./api:/api
+    depends_on:
+      - database
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "0.2"
+    #       memory: "0.5GB"
+
+  api3:
+    container_name: api3
+    hostname: api3
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - ENV=development
+      - PORT=3003
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=database
+    ports:
+      - "3003:3003"
+    restart: on-failure
+    volumes:
+      - ./api:/api
+    depends_on:
+      - database
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "0.2"
+    #       memory: "0.5GB"
+
+  consumer:
+    container_name: "consumer"
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    env_file:
+      - ./consumer/.env
+    ports:
+      - "3004:3004"
+    restart: on-failure
+    volumes:
+      - ./consumer:/consumer
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.13-management
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+
+  # cache:
+  #   image: redis:latest
+  #   hostname: cache
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./scripts/redis/:/etc/redis/
+  #   command: ["redis-server", "/etc/redis/redis.conf"]
+  # deploy:
+  #   resources:
+  #     limits:
+  #       cpus: "0.15"
+  #       memory: "0.5GB"
+
+  database:
+    container_name: "database"
+    image: postgres:15
+    restart: always
+    ports:
+      - "7432:5432"
+    env_file:
+      - ./.env
+    deploy:
+      resources:
+        limits:
+          cpus: "0.7"
+          memory: "1GB"
+    volumes:
+      - database:/var/lib/postgresql/data
+
+volumes:
+  database: ~
+
+networks:
+  default:
+    driver: bridge
