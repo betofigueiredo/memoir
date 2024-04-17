@@ -6,7 +6,8 @@ from core.database import get_db_session
 from core.settings import settings
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from models import Note
+from models import Note, User
+from schemas import CreateNoteSchema, CreateUserSchema
 from sqlalchemy.future import select
 
 app = FastAPI()
@@ -25,6 +26,15 @@ def get_index():
     return {"message": "Hello, World!"}
 
 
+@app.post("/users")
+async def create_user(body: CreateUserSchema, db_session=Depends(get_db_session)):
+    async with db_session as session:
+        user = User(name=body.name, email=body.email)
+        session.add(user)
+        await session.commit()
+        return user
+
+
 @app.get("/notes/{note_id}")
 async def get_note(note_id, db_session=Depends(get_db_session)):
     async with db_session as session:
@@ -40,9 +50,9 @@ async def get_notes(db_session=Depends(get_db_session)):
 
 
 @app.post("/notes")
-async def create_note(user_id, content, db_session=Depends(get_db_session)):
+async def create_note(body: CreateNoteSchema, db_session=Depends(get_db_session)):
     async with db_session as session:
-        note = Note(content=content, user_id=user_id)
+        note = Note(content=body.content, user_id=body.user_id)
         session.add(note)
         await session.commit()
         return note

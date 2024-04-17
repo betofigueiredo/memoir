@@ -15,8 +15,8 @@ export let options = {
 
 const createId = new SharedArray("body", () => {
   const ids = [];
-  for (let i = 0; i < 100; i++) {
-    const id = Math.floor(Math.random() * 1000) + 1;
+  for (let i = 0; i < 35000; i++) {
+    const id = Math.floor(Math.random() * 35000) + 1;
     ids.push(id);
   }
   return ids;

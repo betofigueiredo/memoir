@@ -15,11 +15,8 @@ export let options = {
 
 const createBody = new SharedArray("body", () => {
   const bodies = [];
-  for (let i = 0; i < 100; i++) {
-    const newBody = {
-      title: `Title ${i}`,
-      content: `Content ${i}`,
-    };
+  for (let i = 0; i < 20000; i++) {
+    const newBody = { user_id: i, content: `Content ${i}` };
     bodies.push(newBody);
   }
   return bodies;

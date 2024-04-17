@@ -1,6 +1,11 @@
 from pydantic import BaseModel
 
 
+class CreateUserSchema(BaseModel):
+    name: str
+    email: str
+
+
 class CreateNoteSchema(BaseModel):
-    title: str
+    user_id: int
     content: str
